@@ -13,18 +13,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.passwordCompare = exports.passwordHash = void 0;
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 function passwordHash(password) {
     return __awaiter(this, void 0, void 0, function* () {
-        const salt = yield bcrypt_1.default.genSalt(10);
-        const hash = yield bcrypt_1.default.hash(password, salt);
+        const salt = yield bcryptjs_1.default.genSalt(10);
+        const hash = yield bcryptjs_1.default.hash(password, salt);
         return hash;
     });
 }
 exports.passwordHash = passwordHash;
 function passwordCompare(password, hashPassword) {
     return __awaiter(this, void 0, void 0, function* () {
-        const isMatch = yield bcrypt_1.default.compare(password, hashPassword);
+        const isMatch = yield bcryptjs_1.default.compare(password, hashPassword);
         return isMatch;
     });
 }
