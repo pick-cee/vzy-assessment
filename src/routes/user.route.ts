@@ -10,6 +10,6 @@ router.post('/sign-in', LogIn)
 router.put('/update', verifyToken, updateDetails)
 router.put('/change-password', verifyToken, changePassword)
 
-router.post('/stripe-webhook', verifyToken, webhookPayment)
+router.post('/stripe-webhook', express.raw({ type: 'application/json' }), verifyToken, webhookPayment)
 
 export default router

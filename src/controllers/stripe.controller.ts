@@ -2,36 +2,28 @@ import { Stripe } from 'stripe'
 import express, { NextFunction } from 'express'
 import CustomResponse from '../utils/response.handler'
 import userModel from '../models/user.model'
+const stripe = require('stripe')(`${process.env.STRIPE_SECRET_KEY}`)
 
 const stripeSecretKey = `${process.env.STRIPE_SECRET_KEY}`
+const endpointSecret = `${process.env.STRIPE_WEBHOOK_SECRET}`
 
-const stripeClient = new Stripe(stripeSecretKey, {
-    apiVersion: '2023-10-16'
-})
+const stripeClient = new Stripe(stripeSecretKey)
 
 export async function webhookPayment(
     request: express.Request,
     response: express.Response,
     next: NextFunction
 ) {
+
     try {
         const userId = request.user._id
-        const paymentIntent = await stripeClient.paymentIntents.create({
-            amount: 1000,
-            currency: 'usd',
-            metadata: {
-                userId: userId
-            }
-        })
-        const signature = request.headers['stripe-signature'] as string
-
-        let event: Stripe.Event
-
+        const signature = request.headers['stripe-signature']
+        let event
         try {
-            event = stripeClient.webhooks.constructEvent(
+            event = stripe.webhooks.constructEvent(
                 request.body,
-                signature,
-                stripeSecretKey
+                `${signature}`,
+                `${endpointSecret}`
             )
         }
         catch (err: any) {
@@ -45,7 +37,7 @@ export async function webhookPayment(
         //handle successful payment events
         switch (event.type) {
             case 'payment_intent.succeeded':
-                const user = paymentIntent.metadata.userId
+                const user = userId
                 if (!user) {
                     return next(new CustomResponse(response).error(
                         'No ID passed',

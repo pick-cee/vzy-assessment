@@ -28,7 +28,6 @@ export async function verifyToken(
         try {
             const token = request.headers.authorization.split(" ")[1]
             jwt.verify(token, `${process.env.JWT_ACCESS_KEY}`, async (error: any, user: any) => {
-                console.log(error)
                 if (error) return next(new CustomResponse(response).error("Invalid bearer token", 403))
                 const userExists = await userModel.findById(user._id).exec()
                 if (userExists) {
